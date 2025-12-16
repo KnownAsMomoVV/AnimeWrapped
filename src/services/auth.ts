@@ -1,11 +1,23 @@
+const getRedirectUri = () => {
+  if (process.env.REACT_APP_REDIRECT_URI) {
+    return process.env.REACT_APP_REDIRECT_URI;
+  }
+
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    return `${window.location.origin}/`;
+  }
+
+  return '';
+};
+
 export const AUTH_CONFIG = {
   clientId: process.env.REACT_APP_ANILIST_CLIENT_ID!,
-  redirectUri: process.env.REACT_APP_REDIRECT_URI!,
+  redirectUri: getRedirectUri(),
   authEndpoint: 'https://anilist.co/api/v2/oauth/authorize',
-  // Use Vercel serverless function in production, local proxy in development
-  proxyEndpoint: process.env.NODE_ENV === 'production'
-    ? '/api/token'
-    : 'http://localhost:3001/api/token',
+  proxyEndpoint: process.env.REACT_APP_PROXY_ENDPOINT
+    || (process.env.NODE_ENV === 'development'
+      ? 'http://localhost:3001/api/token'
+      : '/api/token'),
 };
 
 export const initiateLogin = () => {
